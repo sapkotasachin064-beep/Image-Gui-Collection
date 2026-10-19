@@ -1,4 +1,4 @@
-name: Build all apps
+name: Build all (Release)
 
 on:
   push:
@@ -117,7 +117,7 @@ jobs:
           Add-Content -Path $env:GITHUB_ENV -Value "LIB=$dx\Lib\$arch;$env:LIB"
           Write-Output "D3DX9 SDK staged at $dx for $arch"
 
-      - name: Build (${{ matrix.platform }} Release)
+      - name: Build (Release|${{ matrix.platform }})
         run: msbuild "${{ matrix.solution }}" /nologo /m /v:minimal /p:Configuration=Release /p:Platform=${{ matrix.platform }}
 
       - name: Locate build output
@@ -137,9 +137,11 @@ jobs:
           Copy-Item $env:OUTPUT_PATH $dest
           Add-Content -Path "$dest/build-info.txt" -Value @(
             "app: ${{ matrix.app }}"
-            "platform: ${{ matrix.platform }}"
+            "solution: ${{ matrix.solution }}"
             "configuration: Release"
+            "platform: ${{ matrix.platform }}"
             "commit: ${{ github.sha }}"
+            "run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           )
           Get-ChildItem $dest | Select-Object Name, Length
 
@@ -171,7 +173,7 @@ jobs:
       - name: Install
         run: pnpm install --frozen-lockfile
 
-      - name: Build
+      - name: Build (production)
         run: pnpm build
 
       - name: Typecheck
@@ -187,3 +189,36 @@ jobs:
             src/kdenlive-mcp/apps/*/dist
             src/kdenlive-mcp/packages/*/dist
           if-no-files-found: warn
+
+  publish:
+    name: publish (rolling release)
+    needs: [native, kdenlive-mcp]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+
+      - name: Pack every artifact into one zip
+        run: |
+          cd dist
+          for dir in */; do
+            name="${dir%/}"
+            (cd "$name" && zip -qr "../${name}.zip" .)
+          done
+          ls -lh *.zip
+
+      - name: Push builds to the latest-build release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          notes=$(printf 'Rolling release. Every push to `main` replaces these assets.\n\n- commit: `%s`\n- run: %s/%s/actions/runs/%s\n- built: %s\n' \
+            "$GITHUB_SHA" "$GITHUB_SERVER_URL" "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID" "$(date -u +%Y-%m-%dT%H:%M:%SZ)")
+          gh release view latest-build --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1 \
+            || gh release create latest-build --repo "$GITHUB_REPOSITORY" --title "Latest builds" --notes "Rolling release of every Release build."
+          gh release upload latest-build dist/*.zip --clobber --repo "$GITHUB_REPOSITORY"
+          gh release edit latest-build --repo "$GITHUB_REPOSITORY" --notes "$notes"
+          gh release view latest-build --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets[].name'
