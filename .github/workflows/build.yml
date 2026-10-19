@@ -1,15 +1,15 @@
-name: Build all (Release)
+name: Build src projects (Release, x64)
 
 on:
   push:
     branches: [main]
     paths-ignore:
+      - 'images/**'
       - '**.md'
-  pull_request:
   workflow_dispatch:
 
 concurrency:
-  group: build-${{ github.ref }}
+  group: build-src-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
@@ -25,153 +25,36 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Scan images/ for archives
+      - name: Scan src/ for projects
         id: scan
         shell: bash
         run: |
           set -euo pipefail
-          cd images
-          mapfile -t files < <(ls -1 *.rar *.zip 2>/dev/null | sort)
-          count=${#files[@]}
-          per=10
+          mapfile -t dirs < <(find src -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort)
+          count=${#dirs[@]}
+          per=9
           echo "count=$count" >> "$GITHUB_OUTPUT"
           if [ "$count" -eq 0 ]; then
             echo 'chunks=[]' >> "$GITHUB_OUTPUT"
-            echo "no archives found"
             exit 0
           fi
-          all=$(printf '%s\n' "${files[@]}" | jq -R -s 'split("\n") | map(select(length > 0))')
+          all=$(printf '%s\n' "${dirs[@]}" | jq -R -s 'split("\n") | map(select(length > 0))')
           chunks=$(jq -cn --argjson a "$all" --argjson per "$per" '
             ($a | length) as $len |
             [ range(0; (($len + $per - 1) / $per | floor)) as $i
-              | { index: $i, names: $a[($i * $per):(($i + 1) * $per)] } ]')
+              | { index: $i, projects: $a[($i * $per):(($i + 1) * $per)] } ]')
           {
             echo "chunks<<CHUNKS_EOF"
             echo "$chunks"
             echo "CHUNKS_EOF"
           } >> "$GITHUB_OUTPUT"
-          echo "found $count archives in $(jq -c 'length' <<< "$chunks") parts"
+          echo "found $count projects in $(jq -c 'length' <<< "$chunks") parts"
 
-  projects:
-    name: ${{ matrix.app }} (${{ matrix.platform }})
-    runs-on: windows-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - app: drillaware-framework
-            solution: src/drillaware-framework/KingsleydotDev-Drillaware-ImGui-Menu.sln
-            platform: x64
-            binary: KingsleydotDev-Drillaware-ImGui-Menu.exe
-          - app: drillaware-framework
-            solution: src/drillaware-framework/KingsleydotDev-Drillaware-ImGui-Menu.sln
-            platform: x86
-            binary: KingsleydotDev-Drillaware-ImGui-Menu.exe
-          - app: chudvision-framework
-            solution: src/chudvision-framework/ImGui-Chudvision-Framework-KingsleydotDev.sln
-            platform: x64
-            binary: ImGui-Chudvision-Framework-KingsleydotDev.exe
-          - app: chudvision-framework
-            solution: src/chudvision-framework/ImGui-Chudvision-Framework-KingsleydotDev.sln
-            platform: x86
-            binary: ImGui-Chudvision-Framework-KingsleydotDev.exe
-          - app: chudvision-menu
-            solution: src/chudvision-menu/ImGui-Chudvision-Framework-KingsleydotDev.sln
-            platform: x64
-            binary: ImGui-Chudvision-Framework-KingsleydotDev.exe
-          - app: chudvision-menu
-            solution: src/chudvision-menu/ImGui-Chudvision-Framework-KingsleydotDev.sln
-            platform: x86
-            binary: ImGui-Chudvision-Framework-KingsleydotDev.exe
-          - app: opengl-base
-            solution: src/opengl-base/ImGui OpenGL Base.sln
-            platform: x64
-            binary: Corrupted.dll
-          - app: opengl-base
-            solution: src/opengl-base/ImGui OpenGL Base.sln
-            platform: x86
-            binary: Corrupted.dll
-          - app: memesense-dx11
-            solution: src/memesense-dx11/MemeSenseFramework.sln
-            platform: x64
-            binary: MemeSenseFramework.exe
-          - app: memesense-dx11
-            solution: src/memesense-dx11/MemeSenseFramework.sln
-            platform: x86
-            binary: MemeSenseFramework.exe
-          - app: static-dx11
-            solution: src/static-dx11/StaticFramework.sln
-            platform: x64
-            binary: StaticFramework.exe
-          - app: static-dx11
-            solution: src/static-dx11/StaticFramework.sln
-            platform: x86
-            binary: StaticFramework.exe
-          - app: animated-imgui-loader
-            solution: src/animated-imgui-loader/Control-UsetInterface.sln
-            platform: x64
-            binary: Control-UsetInterface.exe
-            dxsdk: true
-          - app: animated-imgui-loader
-            solution: src/animated-imgui-loader/Control-UsetInterface.sln
-            platform: x86
-            binary: Control-UsetInterface.exe
-            dxsdk: true
-          - app: directx9-cheat-base
-            solution: src/directx9-cheat-base/DirectX9 Cheat Base With Menu.sln
-            platform: x86
-            binary: DirectX9 Cheat Base With Menu.dll
-            dxsdk: true
-    steps:
-      - uses: actions/checkout@v6
-
-      - uses: microsoft/setup-msbuild@v2
-
-      - name: Stage the D3DX SDK
-        if: matrix.dxsdk
-        shell: pwsh
-        run: '& ./.github/scripts/install-d3dx9.ps1 -Platform ${{ matrix.platform }}'
-
-      - name: Build (Release|${{ matrix.platform }})
-        run: msbuild "${{ matrix.solution }}" /nologo /m /v:minimal /p:Configuration=Release /p:Platform=${{ matrix.platform }}
-
-      - name: Locate build output
-        shell: pwsh
-        run: |
-          $bin = Get-ChildItem -Path "src/${{ matrix.app }}" -Recurse -File -Filter "${{ matrix.binary }}" |
-                 Sort-Object LastWriteTime -Descending | Select-Object -First 1
-          if (-not $bin) { throw "Build output '${{ matrix.binary }}' not found under src/${{ matrix.app }}" }
-          Write-Output "OUTPUT=$($bin.FullName)"
-          "OUTPUT_PATH=$($bin.FullName)" >> $env:GITHUB_ENV
-
-      - name: Stage artifact
-        shell: pwsh
-        run: |
-          $dest = "artifacts/${{ matrix.app }}-${{ matrix.platform }}"
-          New-Item -ItemType Directory -Force -Path $dest | Out-Null
-          Copy-Item $env:OUTPUT_PATH $dest
-          Add-Content -Path "$dest/build-info.txt" -Value @(
-            "app: ${{ matrix.app }}"
-            "solution: ${{ matrix.solution }}"
-            "configuration: Release"
-            "platform: ${{ matrix.platform }}"
-            "commit: ${{ github.sha }}"
-            "run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          )
-          Get-ChildItem $dest | Select-Object Name, Length
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.app }}-${{ matrix.platform }}-Release
-          path: artifacts/${{ matrix.app }}-${{ matrix.platform }}
-          if-no-files-found: error
-
-  menus:
-    name: menus part ${{ matrix.chunk.index }}
+  build:
+    name: build part ${{ matrix.chunk.index }}
     needs: discover
-    if: needs.discover.outputs.count != '0'
     runs-on: windows-latest
-    timeout-minutes: 120
+    timeout-minutes: 180
     strategy:
       fail-fast: false
       matrix:
@@ -183,62 +66,23 @@ jobs:
 
       - name: Stage the D3DX SDK
         shell: pwsh
-        run: '& ./.github/scripts/install-d3dx9.ps1'
+        run: '& ./.github/scripts/install-d3dx9.ps1 -Platform x64'
 
-      - name: Extract and build the archives of this part
+      - name: Build the projects of this part (Release|x64)
         shell: pwsh
         env:
-          NAMES: ${{ toJSON(matrix.chunk.names) }}
-        run: '& ./.github/scripts/build-archives.ps1 -NamesJson $env:NAMES -Index ${{ matrix.chunk.index }}'
+          PROJECTS: ${{ toJSON(matrix.chunk.projects) }}
+        run: '& ./.github/scripts/build-projects.ps1 -Projects ($env:PROJECTS | ConvertFrom-Json)'
 
       - uses: actions/upload-artifact@v4
         with:
-          name: menus-part-${{ matrix.chunk.index }}
-          path: artifacts/menus-part-${{ matrix.chunk.index }}
+          name: exes-part-${{ matrix.chunk.index }}
+          path: artifacts/
           if-no-files-found: warn
 
-  kdenlive-mcp:
-    name: kdenlive-mcp (typescript)
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: src/kdenlive-mcp
-    steps:
-      - uses: actions/checkout@v6
-
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 9.5.0
-
-      - uses: actions/setup-node@v6
-        with:
-          node-version: 22
-          cache: pnpm
-          cache-dependency-path: src/kdenlive-mcp/pnpm-lock.yaml
-
-      - name: Install
-        run: pnpm install --frozen-lockfile
-
-      - name: Build (production)
-        run: pnpm build
-
-      - name: Typecheck
-        run: pnpm typecheck
-
-      - name: Test
-        run: pnpm test
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: kdenlive-mcp-dist
-          path: |
-            src/kdenlive-mcp/apps/*/dist
-            src/kdenlive-mcp/packages/*/dist
-          if-no-files-found: warn
-
-  publish:
-    name: publish (rolling release)
-    needs: [projects, menus, kdenlive-mcp]
+  release:
+    name: release (binaries)
+    needs: build
     if: ${{ !cancelled() && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     runs-on: windows-latest
     permissions:
@@ -250,8 +94,8 @@ jobs:
         with:
           path: dist
 
-      - name: Publish binaries and the build report
+      - name: Publish the built binaries to the rolling release
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
-        run: '& ./.github/scripts/publish-builds.ps1'
+        run: '& ./.github/scripts/publish-exes.ps1'
