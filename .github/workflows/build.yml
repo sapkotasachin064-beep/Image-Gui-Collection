@@ -4,7 +4,6 @@ on:
   push:
     branches: [main]
     paths-ignore:
-      - 'images/**'
       - '**.md'
   pull_request:
   workflow_dispatch:
@@ -17,7 +16,43 @@ permissions:
   contents: read
 
 jobs:
-  native:
+  discover:
+    name: discover
+    runs-on: ubuntu-latest
+    outputs:
+      chunks: ${{ steps.scan.outputs.chunks }}
+      count: ${{ steps.scan.outputs.count }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Scan images/ for archives
+        id: scan
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd images
+          mapfile -t files < <(ls -1 *.rar *.zip 2>/dev/null | sort)
+          count=${#files[@]}
+          per=10
+          echo "count=$count" >> "$GITHUB_OUTPUT"
+          if [ "$count" -eq 0 ]; then
+            echo 'chunks=[]' >> "$GITHUB_OUTPUT"
+            echo "no archives found"
+            exit 0
+          fi
+          all=$(printf '%s\n' "${files[@]}" | jq -R -s 'split("\n") | map(select(length > 0))')
+          chunks=$(jq -cn --argjson a "$all" --argjson per "$per" '
+            ($a | length) as $len |
+            [ range(0; (($len + $per - 1) / $per | floor)) as $i
+              | { index: $i, names: $a[($i * $per):(($i + 1) * $per)] } ]')
+          {
+            echo "chunks<<CHUNKS_EOF"
+            echo "$chunks"
+            echo "CHUNKS_EOF"
+          } >> "$GITHUB_OUTPUT"
+          echo "found $count archives in $(jq -c 'length' <<< "$chunks") parts"
+
+  projects:
     name: ${{ matrix.app }} (${{ matrix.platform }})
     runs-on: windows-latest
     strategy:
@@ -92,30 +127,10 @@ jobs:
 
       - uses: microsoft/setup-msbuild@v2
 
-      - name: Install D3DX9 SDK (Microsoft.DXSDK.D3DX)
+      - name: Stage the D3DX SDK
         if: matrix.dxsdk
         shell: pwsh
-        run: |
-          $tmp = Join-Path $env:RUNNER_TEMP "d3dx"
-          New-Item -ItemType Directory -Force -Path $tmp | Out-Null
-          $zip = Join-Path $tmp "d3dx.zip"
-          Invoke-WebRequest -Uri "https://www.nuget.org/api/v2/package/Microsoft.DXSDK.D3DX/9.29.952.8" -OutFile $zip -UseBasicParsing
-          Expand-Archive -LiteralPath $zip -DestinationPath (Join-Path $tmp "pkg") -Force
-          $pkg = Join-Path $tmp "pkg/build/native"
-          $dx = Join-Path $tmp "sdk"
-          New-Item -ItemType Directory -Force -Path "$dx/Include", "$dx/Lib/x86", "$dx/Lib/x64" | Out-Null
-          Copy-Item "$pkg/include/*" "$dx/Include" -Recurse -Force
-          Copy-Item "$pkg/release/lib/x86/*", "$pkg/debug/lib/x86/*" "$dx/Lib/x86" -Recurse -Force
-          Copy-Item "$pkg/release/lib/x64/*", "$pkg/debug/lib/x64/*" "$dx/Lib/x64" -Recurse -Force
-          $arch = if ("${{ matrix.platform }}" -eq "x86") { "x86" } else { "x64" }
-          # src/animated-imgui-loader ships an x64 d3dx9.lib in its project folder, and the
-          # project folder wins over the SDK search path. Put the matching arch library back.
-          $vendored = "src/animated-imgui-loader/d3dx9.lib"
-          if (Test-Path $vendored) { Copy-Item "$dx/Lib/$arch/d3dx9.lib" $vendored -Force }
-          Add-Content -Path $env:GITHUB_ENV -Value "DXSDK_DIR=$dx\"
-          Add-Content -Path $env:GITHUB_ENV -Value "INCLUDE=$dx\Include;$env:INCLUDE"
-          Add-Content -Path $env:GITHUB_ENV -Value "LIB=$dx\Lib\$arch;$env:LIB"
-          Write-Output "D3DX9 SDK staged at $dx for $arch"
+        run: '& ./.github/scripts/install-d3dx9.ps1 -Platform ${{ matrix.platform }}'
 
       - name: Build (Release|${{ matrix.platform }})
         run: msbuild "${{ matrix.solution }}" /nologo /m /v:minimal /p:Configuration=Release /p:Platform=${{ matrix.platform }}
@@ -150,6 +165,37 @@ jobs:
           name: ${{ matrix.app }}-${{ matrix.platform }}-Release
           path: artifacts/${{ matrix.app }}-${{ matrix.platform }}
           if-no-files-found: error
+
+  menus:
+    name: menus part ${{ matrix.chunk.index }}
+    needs: discover
+    if: needs.discover.outputs.count != '0'
+    runs-on: windows-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        chunk: ${{ fromJSON(needs.discover.outputs.chunks) }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: microsoft/setup-msbuild@v2
+
+      - name: Stage the D3DX SDK
+        shell: pwsh
+        run: '& ./.github/scripts/install-d3dx9.ps1'
+
+      - name: Extract and build the archives of this part
+        shell: pwsh
+        env:
+          NAMES: ${{ toJSON(matrix.chunk.names) }}
+        run: '& ./.github/scripts/build-archives.ps1 -NamesJson $env:NAMES -Index ${{ matrix.chunk.index }}'
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: menus-part-${{ matrix.chunk.index }}
+          path: artifacts/menus-part-${{ matrix.chunk.index }}
+          if-no-files-found: warn
 
   kdenlive-mcp:
     name: kdenlive-mcp (typescript)
@@ -192,33 +238,20 @@ jobs:
 
   publish:
     name: publish (rolling release)
-    needs: [native, kdenlive-mcp]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
+    needs: [projects, menus, kdenlive-mcp]
+    if: ${{ !cancelled() && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    runs-on: windows-latest
     permissions:
       contents: write
     steps:
+      - uses: actions/checkout@v6
+
       - uses: actions/download-artifact@v4
         with:
           path: dist
 
-      - name: Pack every artifact into one zip
-        run: |
-          cd dist
-          for dir in */; do
-            name="${dir%/}"
-            (cd "$name" && zip -qr "../${name}.zip" .)
-          done
-          ls -lh *.zip
-
-      - name: Push builds to the latest-build release
+      - name: Publish binaries and the build report
+        shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
-        run: |
-          notes=$(printf 'Rolling release. Every push to `main` replaces these assets.\n\n- commit: `%s`\n- run: %s/%s/actions/runs/%s\n- built: %s\n' \
-            "$GITHUB_SHA" "$GITHUB_SERVER_URL" "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID" "$(date -u +%Y-%m-%dT%H:%M:%SZ)")
-          gh release view latest-build --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1 \
-            || gh release create latest-build --repo "$GITHUB_REPOSITORY" --title "Latest builds" --notes "Rolling release of every Release build."
-          gh release upload latest-build dist/*.zip --clobber --repo "$GITHUB_REPOSITORY"
-          gh release edit latest-build --repo "$GITHUB_REPOSITORY" --notes "$notes"
-          gh release view latest-build --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets[].name'
+        run: '& ./.github/scripts/publish-builds.ps1'

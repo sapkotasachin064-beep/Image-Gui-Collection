@@ -10,8 +10,9 @@ pushes those builds to the rolling `latest-build` release.
 
 ```
 .github/workflows/build.yml   CI: builds every app in Release and publishes the results
-src/                          every project
-images/                       ImGui-Menus reference collection (101 archives, about 380 MB)
+.github/scripts/              helper scripts the workflow calls on the runner
+src/                          every project (8 apps + kdenlive-mcp)
+images/                       ImGui-Menus reference collection: 99 archives (76 rar, 23 zip)
 README.md
 .gitignore
 .gitattributes
@@ -35,33 +36,43 @@ Fifteen native jobs build the Windows projects, one job builds the TypeScript wo
 
 ## Continuous integration
 
-Workflow: `.github/workflows/build.yml` (`Build all (Release)`).
+Workflow: `.github/workflows/build.yml` (`Build all (Release)`). Everything runs on GitHub
+runners; the `.github/scripts` helpers only run there too.
 
 Triggers:
 
-- push to `main`, except commits that touch only `images/**` or `**.md`
+- push to `main`, except commits that touch only `**.md`
 - pull requests
 - manual run: **Actions → Build all (Release) → Run workflow**
 
 Jobs:
 
-1. `native` — one job per app and platform. Steps: checkout, `microsoft/setup-msbuild`, optional
-   D3DX9 SDK step, `msbuild <solution> /p:Configuration=Release /p:Platform=<platform>`, locate the
-   binary, stage it with a `build-info.txt`, upload artifact `<app>-<platform>-Release`.
-2. `kdenlive-mcp` — `pnpm install --frozen-lockfile`, `pnpm build`, `pnpm typecheck`, `pnpm test` on
+1. `discover` — lists the archives in `images/` and splits them into parts of 10.
+2. `projects` — one job per app and platform for the eight projects in `src/`. Steps: checkout,
+   `microsoft/setup-msbuild`, D3DX SDK step where needed, `msbuild <solution> /p:Configuration=Release
+   /p:Platform=<platform>`, locate the binary, stage it with `build-info.txt`, upload artifact
+   `<app>-<platform>-Release`.
+3. `menus` — one job per part. Each job stages the D3DX SDK, extracts its archives with 7-Zip,
+   picks the solution out of every archive, builds `Release` (trying `x64`, then `x86`, then `Win32`,
+   and retrying with `PlatformToolset=v143` and `WindowsTargetPlatformVersion=10.0` when a project
+   wants an older toolset), detects the freshly produced `.exe`/`.dll` files, and records everything
+   in `report.json`. A broken menu never stops the other menus: its error lands in the report.
+4. `kdenlive-mcp` — `pnpm install --frozen-lockfile`, `pnpm build`, `pnpm typecheck`, `pnpm test` on
    `ubuntu-latest`. Artifact: `kdenlive-mcp-dist`.
-3. `publish` — runs after both, only on a push to `main`. Downloads every artifact, packs each into
-   a zip, and uploads it to the rolling release `latest-build` with `--clobber`, so the release
-   always holds the newest successful builds.
+5. `publish` — runs after the build jobs, only on a push to `main` and also when some builds failed.
+   Uploads every produced binary to the rolling release `latest-build` with `--clobber`, plus one zip
+   per project artifact and the `BUILD-REPORT.md` summary.
 
 ## Download the builds
 
 Release page: <https://github.com/sapkotasachin064-beep/Image-Gui-Collection/releases/tag/latest-build>
 
-Asset names follow `<app>-<platform>-Release.zip`, for example
-`drillaware-framework-x64-Release.zip`. Each zip contains the binary and a `build-info.txt` with the
-app, solution, configuration, platform, commit hash and workflow run link. Per-run artifacts stay
-available under the **Actions** tab as well.
+- Every built binary is a release asset: `<app>-<platform>-<name>.exe` or `.dll`. Menus appear as
+  `<menu-name>-<platform>-<binary>`, for example `Loader-Saturn-dx9-x64-Loader Saturn.exe`.
+- `BUILD-REPORT.md` lists which targets built, which failed with their first compiler error, and
+  which archives hold no solution.
+- Zip assets (`<app>-<platform>-Release.zip`, `kdenlive-mcp-dist.zip`) still exist for the eight
+  projects in `src/` and the TypeScript workspace. Per-run artifacts stay under the **Actions** tab.
 
 ## Runtime requirements
 
@@ -129,9 +140,12 @@ so the project works on any machine that sets `DXSDK_DIR`.
 
 ## `images/`
 
-The ImGui-Menus reference collection: 101 packed menu projects, about 380 MB in total. The files are
-tracked, so a fresh clone downloads all of them. CI skips commits that touch only this folder or
-Markdown files.
+The ImGui-Menus reference collection: 99 packed menu projects (76 `.rar`, 23 `.zip`), about 380 MB.
+The files are tracked, so a fresh clone downloads all of them.
+
+CI builds straight from these archives, so the extracted copies never enter git. If you extract an
+archive into `src/` for local work, `.gitignore` keeps the common folders out of commits
+(`src/* dx9/`, `src/* dx11/`, `src/* opengl3/`).
 
 ## Licensing
 

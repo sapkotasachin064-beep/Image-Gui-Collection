@@ -25,5 +25,14 @@ Build/
 extracted/
 image-gui-collection/
 
+# Local copies of the archives in images/. CI extracts them itself, so these must stay untracked.
+src/* dx9/
+src/* dx11/
+src/* opengl3/
+src/* Loaderdx11/
+src/* DirectX11 base/
+src/Lyapos Panda style loader/
+src/imgui DEADCODE/
+
 # Node
 node_modules/
