@@ -105,6 +105,10 @@ jobs:
           Copy-Item "$pkg/release/lib/x86/*", "$pkg/debug/lib/x86/*" "$dx/Lib/x86" -Recurse -Force
           Copy-Item "$pkg/release/lib/x64/*", "$pkg/debug/lib/x64/*" "$dx/Lib/x64" -Recurse -Force
           $arch = if ("${{ matrix.platform }}" -eq "x86") { "x86" } else { "x64" }
+          # src/animated-imgui-loader ships an x64 d3dx9.lib in its project folder, and the
+          # project folder wins over the SDK search path. Put the matching arch library back.
+          $vendored = "src/animated-imgui-loader/d3dx9.lib"
+          if (Test-Path $vendored) { Copy-Item "$dx/Lib/$arch/d3dx9.lib" $vendored -Force }
           Add-Content -Path $env:GITHUB_ENV -Value "DXSDK_DIR=$dx\"
           Add-Content -Path $env:GITHUB_ENV -Value "INCLUDE=$dx\Include;$env:INCLUDE"
           Add-Content -Path $env:GITHUB_ENV -Value "LIB=$dx\Lib\$arch;$env:LIB"
