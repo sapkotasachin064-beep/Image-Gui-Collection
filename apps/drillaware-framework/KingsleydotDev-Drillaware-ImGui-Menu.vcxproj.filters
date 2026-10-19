@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="gui">
+      <UniqueIdentifier>{c3d4e5f6-a7b8-9012-cdef-123456789012}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="gui\framework">
+      <UniqueIdentifier>{a7b8c9d0-e1f2-3456-0123-567890123456}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="gui\framework\style">
+      <UniqueIdentifier>{b8c9d0e1-f2a3-4567-1234-678901234567}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="gui\framework\fonts">
+      <UniqueIdentifier>{c9d0e1f2-a3b4-5678-2345-789012345678}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="gui\framework\tab">
+      <UniqueIdentifier>{d0e1f2a3-b4c5-6789-3456-890123456789}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="gui\framework\textline">
+      <UniqueIdentifier>{e1f2a3b4-c5d6-7890-4567-901234567890}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="gui\framework\checkbox">
+      <UniqueIdentifier>{f2a3b4c5-d6e7-8901-5678-012345678901}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="gui\framework\slider">
+      <UniqueIdentifier>{a3b4c5d6-e7f8-9012-6789-123450987654}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="gui\framework\button">
+      <UniqueIdentifier>{b4c5d6e7-f8a9-0123-7890-234561098765}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="gui\framework\combo">
+      <UniqueIdentifier>{c5d6e7f8-a9b0-1234-8901-345672109876}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="gui\framework\inputtext">
+      <UniqueIdentifier>{e4f5a6b7-c8d9-0123-7890-234510987654}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="gui\framework\colorpicker">
+      <UniqueIdentifier>{f5a6b7c8-d9e0-1234-8901-345621098765}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="gui\framework\panel">
+      <UniqueIdentifier>{d6e7f8a9-b0c1-2345-9012-456783210987}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="gui\pages">
+      <UniqueIdentifier>{d4e5f6a7-b8c9-0123-def0-234567890123}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="config">
+      <UniqueIdentifier>{e7f8a9b0-c1d2-3456-0123-567894321098}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="imgui">
+      <UniqueIdentifier>{0587d7a3-f2ce-4d56-b84f-a0005d3bfce6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="freetype">
+      <UniqueIdentifier>{a6b7c8d9-e0f1-2345-9012-456732109876}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sources">
+      <UniqueIdentifier>{08e36723-ce4f-4cff-9662-c40801cf1acf}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ext\imgui\imconfig.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="ext\imgui\imgui.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="ext\imgui\imgui_internal.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="ext\imgui\imgui_impl_win32.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="ext\imgui\imgui_impl_dx11.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="ext\imgui\misc\freetype\imgui_freetype.h">
+      <Filter>freetype</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gui\gui.hpp">
+      <Filter>gui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gui\framework\common.hpp">
+      <Filter>gui\framework</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gui\framework\anim.hpp">
+      <Filter>gui\framework</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gui\framework\style\style.hpp">
+      <Filter>gui\framework\style</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gui\framework\fonts\fonts.hpp">
+      <Filter>gui\framework\fonts</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gui\framework\fonts\SourceSans3-SemiBold.hpp">
+      <Filter>gui\framework\fonts</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gui\framework\fonts\OpenSans-Regular.hpp">
+      <Filter>gui\framework\fonts</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gui\framework\tab\tab.hpp">
+      <Filter>gui\framework\tab</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gui\framework\textline\textline.hpp">
+      <Filter>gui\framework\textline</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gui\framework\checkbox\checkbox.hpp">
+      <Filter>gui\framework\checkbox</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gui\framework\slider\slider.hpp">
+      <Filter>gui\framework\slider</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gui\framework\button\button.hpp">
+      <Filter>gui\framework\button</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gui\framework\combo\combo.hpp">
+      <Filter>gui\framework\combo</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gui\framework\inputtext\inputtext.hpp">
+      <Filter>gui\framework\inputtext</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gui\framework\colorpicker\colorpicker.hpp">
+      <Filter>gui\framework\colorpicker</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gui\framework\panel\panel.hpp">
+      <Filter>gui\framework\panel</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gui\pages\pages.hpp">
+      <Filter>gui\pages</Filter>
+    </ClInclude>
+    <ClInclude Include="src\config\config.hpp">
+      <Filter>config</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="ext\imgui\imgui.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="ext\imgui\imgui_draw.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="ext\imgui\imgui_tables.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="ext\imgui\imgui_widgets.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="ext\imgui\imgui_impl_win32.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="ext\imgui\imgui_impl_dx11.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="ext\imgui\misc\freetype\imgui_freetype.cpp">
+      <Filter>freetype</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\gui.cpp">
+      <Filter>gui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\framework\fonts\fonts.cpp">
+      <Filter>gui\framework\fonts</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\framework\tab\tab.cpp">
+      <Filter>gui\framework\tab</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\framework\textline\textline.cpp">
+      <Filter>gui\framework\textline</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\framework\checkbox\checkbox.cpp">
+      <Filter>gui\framework\checkbox</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\framework\slider\slider.cpp">
+      <Filter>gui\framework\slider</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\framework\button\button.cpp">
+      <Filter>gui\framework\button</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\framework\combo\combo.cpp">
+      <Filter>gui\framework\combo</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\framework\inputtext\inputtext.cpp">
+      <Filter>gui\framework\inputtext</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\framework\colorpicker\colorpicker.cpp">
+      <Filter>gui\framework\colorpicker</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\framework\panel\panel.cpp">
+      <Filter>gui\framework\panel</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\pages\page1\page1.cpp">
+      <Filter>gui\pages</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\pages\page2\page2.cpp">
+      <Filter>gui\pages</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\pages\page3\page3.cpp">
+      <Filter>gui\pages</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\pages\page4\page4.cpp">
+      <Filter>gui\pages</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\pages\page5\page5.cpp">
+      <Filter>gui\pages</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\pages\page6\page6.cpp">
+      <Filter>gui\pages</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\pages\page7\page7.cpp">
+      <Filter>gui\pages</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\pages\page8\page8.cpp">
+      <Filter>gui\pages</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gui\pages\settings\settings.cpp">
+      <Filter>gui\pages</Filter>
+    </ClCompile>
+    <ClCompile Include="src\config\config.cpp">
+      <Filter>config</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
