@@ -7,7 +7,7 @@ ImGui-based GUI projects plus one TypeScript/pnpm workspace. Every app builds in
 ```
 .github/workflows/build.yml   CI: builds every app in src/
 src/                          all ImageGUI projects
-images/                       ImGui-Menus reference collection (kept out of git, see Notes)
+images/                       ImGui-Menus reference collection (101 archives)
 README.md
 .gitignore
 .gitattributes
@@ -65,5 +65,5 @@ pnpm build
 - Solution platforms are named `x86`/`x64`; `x86` maps to the project's `Win32` platform.
 - `src/directx9-cheat-base` is built for `x86` only. Its `Release|x64` configuration has no D3DX9 include or library paths, so it does not compile as shipped.
 - `src/animated-imgui-loader` prefers `$(DXSDK_DIR)`; its original include path pointed at a local DirectX SDK install, which CI cannot use.
-- `images/` holds the ImGui-Menus archive collection (about 400 MB of packed menus). It stays out of git to keep the repository small; ask if you want it published.
-- The six original C++ app folders carry no license file from their authors, so this repository stays private by default. `src/kdenlive-mcp` is Apache-2.0 (upstream: AMMIROSOH/Kdenlive-mcp) and keeps its license and docs.
+- `images/` holds the ImGui-Menus archive collection: 101 packed menu projects, about 380 MB. It is tracked, so a fresh clone downloads all of it. Commits that touch only `images/` or Markdown files skip CI.
+- The six original C++ app folders carry no license file from their authors, and the archives in `images/` come from third parties without a license. This repository is public, so review the rights before redistributing anything from it. `src/kdenlive-mcp` is Apache-2.0 (upstream: AMMIROSOH/Kdenlive-mcp) and keeps its license and docs.
