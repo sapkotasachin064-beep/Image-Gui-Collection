@@ -1,0 +1,136 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="framework">
+      <UniqueIdentifier>{0e7ffd5c-3c14-4276-aceb-542ced9f18ee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="framework\data">
+      <UniqueIdentifier>{21a0a482-0600-4642-a57a-1191d68e5c8f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="framework\functional">
+      <UniqueIdentifier>{e7eb24d1-8e07-478e-8ad7-96baf1298221}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="framework\settings">
+      <UniqueIdentifier>{59b498f4-c195-431c-aaaa-e12856d78fa2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="framework\shader">
+      <UniqueIdentifier>{06dd3e36-ccd1-41cc-be77-70f830a7b3ea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="framework\thridparty">
+      <UniqueIdentifier>{284b8341-c4af-4d5a-8ee3-7a63fdf2f8bf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="framework\thridparty\imgui">
+      <UniqueIdentifier>{0587d7a3-f2ce-4d56-b84f-a0005d3bfce6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="framework\thridparty\freetype">
+      <UniqueIdentifier>{ea10fda8-3737-46ff-81d5-4ed09ec03e88}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\imconfig.h">
+      <Filter>framework\thridparty\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\imgui.h">
+      <Filter>framework\thridparty\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\imgui_internal.h">
+      <Filter>framework\thridparty\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\framework\data\font.h">
+      <Filter>framework\data</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\framework\data\texture.h">
+      <Filter>framework\data</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\framework\settings\functions.h">
+      <Filter>framework\settings</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\framework\settings\variables.h">
+      <Filter>framework\settings</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\framework\shader\blur.hpp">
+      <Filter>framework\shader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\framework\shader\pshader.hpp">
+      <Filter>framework\shader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\framework\settings\settings.h">
+      <Filter>framework\settings</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\framework\data\imgui_freetype.h">
+      <Filter>framework\thridparty\freetype</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\imgui_impl_dx11.h">
+      <Filter>framework\thridparty\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\imgui_impl_win32.h">
+      <Filter>framework\thridparty\imgui</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\imgui.cpp">
+      <Filter>framework\thridparty\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\imgui_draw.cpp">
+      <Filter>framework\thridparty\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\imgui_widgets.cpp">
+      <Filter>framework\thridparty\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\imgui_tables.cpp">
+      <Filter>framework\thridparty\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\framework\functional\base_elements.cpp">
+      <Filter>framework\functional</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\framework\functional\begin.cpp">
+      <Filter>framework\functional</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\framework\functional\custom_draw.cpp">
+      <Filter>framework\functional</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\framework\functional\begin_child.cpp">
+      <Filter>framework\functional</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\framework\data\imgui_freetype.cpp">
+      <Filter>framework\thridparty\freetype</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\imgui_impl_dx11.cpp">
+      <Filter>framework\thridparty\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\imgui_impl_win32.cpp">
+      <Filter>framework\thridparty\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\framework\gui.cc">
+      <Filter>framework</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\framework\functional\text_field.cpp">
+      <Filter>framework\functional</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\framework\functional\button.cpp">
+      <Filter>framework\functional</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\framework\functional\product.cpp">
+      <Filter>framework\functional</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\framework\functional\checkbox.cpp">
+      <Filter>framework\functional</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>framework\thridparty</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\misc\debuggers\imgui.natvis">
+      <Filter>framework\thridparty\imgui</Filter>
+    </None>
+    <None Include="..\..\misc\debuggers\imgui.natstepfilter">
+      <Filter>framework\thridparty\imgui</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="..\..\..\freetype\win64\freetype.lib">
+      <Filter>framework\thridparty\freetype</Filter>
+    </Library>
+  </ItemGroup>
+</Project>

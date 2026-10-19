@@ -1,0 +1,113 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="sources">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="imgui">
+      <UniqueIdentifier>{a82cba23-9de0-45c2-b1e3-2eb1666702de}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="blur">
+      <UniqueIdentifier>{83d1801d-6111-4128-ba42-b2c3ca1840d1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="picture">
+      <UniqueIdentifier>{862ce758-6083-475e-9403-09e96a289de0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="font">
+      <UniqueIdentifier>{f79b5aad-4498-485c-9b0b-9e4010d10942}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="misc">
+      <UniqueIdentifier>{e655bd19-fb35-478c-9a6f-c3efedaee14f}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\imgui.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\imgui_draw.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\backends\imgui_impl_win32.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\backends\imgui_impl_dx9.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\imgui_tables.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\imgui_widgets.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="blur.cpp">
+      <Filter>blur</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\imconfig.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\imgui.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\imgui_internal.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\backends\imgui_impl_win32.h">
+      <Filter>sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\backends\imgui_impl_dx9.h">
+      <Filter>sources</Filter>
+    </ClInclude>
+    <ClInclude Include="main.h">
+      <Filter>sources</Filter>
+    </ClInclude>
+    <ClInclude Include="blur.hpp">
+      <Filter>blur</Filter>
+    </ClInclude>
+    <ClInclude Include="blur_x.h">
+      <Filter>blur</Filter>
+    </ClInclude>
+    <ClInclude Include="blur_y.h">
+      <Filter>blur</Filter>
+    </ClInclude>
+    <ClInclude Include="background.h">
+      <Filter>picture</Filter>
+    </ClInclude>
+    <ClInclude Include="ubuntu_medium.h">
+      <Filter>font</Filter>
+    </ClInclude>
+    <ClInclude Include="ubuntu_bold.h">
+      <Filter>font</Filter>
+    </ClInclude>
+    <ClInclude Include="icon_font.h">
+      <Filter>font</Filter>
+    </ClInclude>
+    <ClInclude Include="colors.h">
+      <Filter>misc</Filter>
+    </ClInclude>
+    <ClInclude Include="logo.h">
+      <Filter>picture</Filter>
+    </ClInclude>
+    <ClInclude Include="ubunutu_regular.h">
+      <Filter>font</Filter>
+    </ClInclude>
+    <ClInclude Include="cruin.h">
+      <Filter>font</Filter>
+    </ClInclude>
+    <ClInclude Include="images.h">
+      <Filter>picture</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\README.txt" />
+    <None Include="..\..\misc\debuggers\imgui.natvis">
+      <Filter>imgui</Filter>
+    </None>
+    <None Include="cpp.hint" />
+  </ItemGroup>
+</Project>

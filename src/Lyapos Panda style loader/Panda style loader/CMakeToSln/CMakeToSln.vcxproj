@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="imgui\backends\imgui_impl_dx11.cpp" />
+    <ClCompile Include="imgui\backends\imgui_impl_win32.cpp" />
+    <ClCompile Include="imgui\imgui.cpp" />
+    <ClCompile Include="imgui\imgui_demo.cpp" />
+    <ClCompile Include="imgui\imgui_draw.cpp" />
+    <ClCompile Include="imgui\imgui_tables.cpp" />
+    <ClCompile Include="imgui\imgui_widgets.cpp" />
+    <ClCompile Include="imgui\misc\cpp\imgui_stdlib.cpp" />
+    <ClCompile Include="imgui\misc\freetype\imgui_freetype.cpp" />
+    <ClCompile Include="src\animation\animation_manager.cpp" />
+    <ClCompile Include="src\animation\linear\linear_animation.cpp" />
+    <ClCompile Include="src\animation\linear\linear_button_color_animation.cpp" />
+    <ClCompile Include="src\animation\linear\linear_color_animation.cpp" />
+    <ClCompile Include="src\animation\linear\linear_with_space_animation.cpp" />
+    <ClCompile Include="src\animation\linear\linear_with_target_2d_animation.cpp" />
+    <ClCompile Include="src\animation\linear\linear_with_target_animation.cpp" />
+    <ClCompile Include="src\animation\widgets\BubbleCheckbox.cpp" />
+    <ClCompile Include="src\animation\widgets\CheatSelection.cpp" />
+    <ClCompile Include="src\animation\widgets\SmoothColoredButton.cpp" />
+    <ClCompile Include="src\animation\widgets\SmoothColorPicker.cpp" />
+    <ClCompile Include="src\animation\widgets\SmoothCombo.cpp" />
+    <ClCompile Include="src\animation\widgets\SmoothInputText.cpp" />
+    <ClCompile Include="src\dynamic_size\imgui_dynamic_size.cpp" />
+    <ClCompile Include="src\dynamic_size\imgui_window_overlay.cpp" />
+    <ClCompile Include="src\experimental\notifications\imgui_notification.cpp" />
+    <ClCompile Include="src\experimental\notifications\imgui_notification_impl\squad_notification_impl.cpp" />
+    <ClCompile Include="src\experimental\notifications\imgui_notification_manager.cpp" />
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\menu\imgui_menu.cpp" />
+    <ClCompile Include="src\render\ImageLoader.cpp" />
+    <ClCompile Include="src\render\RenderCheckMarkRotated.cpp" />
+    <ClCompile Include="src\render\RenderPaskhalkoRotated.cpp" />
+    <ClCompile Include="src\widgets\CenteredText.cpp" />
+    <ClCompile Include="src\widgets\ColoredText.cpp" />
+    <ClCompile Include="src\widgets\HeaderedChild.cpp" />
+    <ClCompile Include="src\widgets\HelpMarker.cpp" />
+    <ClCompile Include="src\widgets\TextWithDescription.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="imgui\backends\imgui_impl_dx11.h" />
+    <ClInclude Include="imgui\backends\imgui_impl_win32.h" />
+    <ClInclude Include="imgui\imconfig.h" />
+    <ClInclude Include="imgui\imgui.h" />
+    <ClInclude Include="imgui\imgui_internal.h" />
+    <ClInclude Include="imgui\imstb_rectpack.h" />
+    <ClInclude Include="imgui\imstb_textedit.h" />
+    <ClInclude Include="imgui\imstb_truetype.h" />
+    <ClInclude Include="imgui\misc\cpp\imgui_stdlib.h" />
+    <ClInclude Include="imgui\misc\freetype\imgui_freetype.h" />
+    <ClInclude Include="imgui\misc\single_file\imgui_single_file.h" />
+    <ClInclude Include="imgui\imgui_draw.hpp" />
+    <ClInclude Include="src\animation\animated_bg.h" />
+    <ClInclude Include="src\animation\animation_manager.h" />
+    <ClInclude Include="src\animation\imgui_animation_base.h" />
+    <ClInclude Include="src\animation\imgui_animation_manager.h" />
+    <ClInclude Include="src\animation\linear\linear_animation.h" />
+    <ClInclude Include="src\animation\linear\linear_button_color_animation.h" />
+    <ClInclude Include="src\animation\linear\linear_color_animation.h" />
+    <ClInclude Include="src\animation\linear\linear_with_space_animation.h" />
+    <ClInclude Include="src\animation\linear\linear_with_target_2d_animation.h" />
+    <ClInclude Include="src\animation\linear\linear_with_target_animation.h" />
+    <ClInclude Include="src\animation\widgets\BubbleCheckbox.h" />
+    <ClInclude Include="src\animation\widgets\CheatSelection.h" />
+    <ClInclude Include="src\animation\widgets\SmoothColoredButton.h" />
+    <ClInclude Include="src\animation\widgets\SmoothColorPicker.h" />
+    <ClInclude Include="src\animation\widgets\SmoothCombo.h" />
+    <ClInclude Include="src\animation\widgets\SmoothInputText.h" />
+    <ClInclude Include="src\dynamic_size\DynImRect.h" />
+    <ClInclude Include="src\dynamic_size\DynImVec2.h" />
+    <ClInclude Include="src\dynamic_size\imgui_dynamic_size.h" />
+    <ClInclude Include="src\dynamic_size\imgui_window_overlay.h" />
+    <ClInclude Include="src\experimental\directx_blur.h" />
+    <ClInclude Include="src\experimental\notifications\imgui_notification.h" />
+    <ClInclude Include="src\experimental\notifications\imgui_notification_impl\squad_notification_impl.h" />
+    <ClInclude Include="src\experimental\notifications\imgui_notification_manager.h" />
+    <ClInclude Include="src\experimental\pshader.hpp" />
+    <ClInclude Include="src\ext_main.h" />
+    <ClInclude Include="src\fonts\Font.h" />
+    <ClInclude Include="src\fonts\icomoon_font.h" />
+    <ClInclude Include="src\fonts\icomoon_icons.h" />
+    <ClInclude Include="src\hash_string.h" />
+    <ClInclude Include="src\math\random_value.h" />
+    <ClInclude Include="src\math\vector2.h" />
+    <ClInclude Include="src\math\vector3.h" />
+    <ClInclude Include="src\menu\imgui_menu.h" />
+    <ClInclude Include="src\render\ImageLoader.h" />
+    <ClInclude Include="src\render\RenderCheckMarkRotated.h" />
+    <ClInclude Include="src\render\RenderPaskhalkoRotated.h" />
+    <ClInclude Include="src\widgets\CenteredText.h" />
+    <ClInclude Include="src\widgets\ColoredText.h" />
+    <ClInclude Include="src\widgets\HeaderedChild.h" />
+    <ClInclude Include="src\widgets\HelpMarker.h" />
+    <ClInclude Include="src\widgets\TextWithDescription.h" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{80192bf7-7191-4570-a2fc-0347f761aaf5}</ProjectGuid>
+    <RootNamespace>CMakeToSln</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LibraryPath>C:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Lib\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>D:\freetype-master\include;C:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Include;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>D:\freetype-master\include;C:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Include;C:\Users\everthings\Desktop\tudo meu\Source e imguis bypass\Panda style loader\freetype\include;C:\Users\everthings\Desktop\tudo meu\Source e imguis bypass\Panda style loader\CMakeToSln\src\fonts;C:\Users\die\Desktop\Panda style loader\CMakeToSln\src\fonts;C:\Users\die\Desktop\Panda style loader\CMakeToSln;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Program Files %28x86%29\Microsoft DirectX SDK %28June 2010%29\Lib\x64;C:\Users\everthings\Desktop\tudo meu\imguis  sources cheat\Key auth milenium v2 - Copy\misc\freetype;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;IMGUI_DEFINE_MATH_OPERATORS;IMGUI_USE_WCHAR32;IMGUI_ENABLE_FREETYPE;_USE_MATH_DEFINES;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(ProjectDir)\src;$(ProjectDir)\imgui;C:\Users\SystemX\Documents\sdk\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>-Zm200
+ %(AdditionalOptions)</AdditionalOptions>
+      <MultiProcessorCompilation>false</MultiProcessorCompilation>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <DisableSpecificWarnings>   4244;4996</DisableSpecificWarnings>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <BuildStlModules>true</BuildStlModules>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;dxgi.lib;freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)\src;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;IMGUI_DEFINE_MATH_OPERATORS;IMGUI_USE_WCHAR32;IMGUI_ENABLE_FREETYPE;_USE_MATH_DEFINES;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(ProjectDir)\src;$(ProjectDir)\imgui;C:\Users\SystemX\Documents\sdk\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <DisableSpecificWarnings>   4244;4996</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;dxgi.lib;freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)\src;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
