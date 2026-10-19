@@ -18,5 +18,9 @@ Build/Intermediate/
 # CI staged artifacts
 artifacts/
 
+# Local extraction staging and the duplicate working clone
+extracted/
+image-gui-collection/
+
 # Node
 node_modules/

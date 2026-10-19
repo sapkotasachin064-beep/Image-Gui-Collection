@@ -1,9 +1,0 @@
-{
-  "packages": {
-    ".": {
-      "release-type": "node",
-      "package-name": "kdenlive-mcp",
-      "changelog-path": "CHANGELOG.md"
-    }
-  }
-}
