@@ -33,15 +33,38 @@ function Get-SolutionPlatform {
 
 function Find-BuiltBinary {
     param([string] $Dir)
+    # Only files the build wrote in this run are considered, so a prebuilt binary
+    # that ships with the project is never published.
     $files = Get-ChildItem -LiteralPath $Dir -Recurse -File -ErrorAction SilentlyContinue |
         Where-Object {
             $_.Extension -in '.exe', '.dll' -and
             $_.LastWriteTime -gt $marker -and
             $_.FullName -notmatch '\\obj\\'
         }
-    $exe = $files | Where-Object Extension -eq '.exe' | Sort-Object { $_.FullName.Length } | Select-Object -First 1
-    if ($exe) { return $exe }
-    return ($files | Where-Object Extension -eq '.dll' | Sort-Object { $_.FullName.Length } | Select-Object -First 1)
+    $scored = foreach ($file in $files) {
+        $score = 0
+        # A vendored library is not the program of the project.
+        if ($file.FullName -match '\\freetype\\|\\thirdparty\\|\\libs\\|\\SDK\\|\\Dependencies\\') { $score += 100 }
+        if ($file.Extension -eq '.dll') { $score += 10 }
+        if ($file.FullName -notmatch 'release|x64|\\bin\\') { $score += 1 }
+        [pscustomobject]@{
+            File = $file
+            Score = $score
+            Depth = ($file.FullName -split '\\').Count
+            Written = $file.LastWriteTime.Ticks
+        }
+    }
+    $best = $scored | Sort-Object Score, Depth, @{ Expression = { - $_.Written } } | Select-Object -First 1
+    if ($best) { return $best.File }
+    return $null
+}
+
+function Get-BuildErrors {
+    param([string] $Log)
+    if (-not (Test-Path $Log)) { return @() }
+    return @(Select-String -Path $Log -Pattern 'error [A-Z]{1,4}[0-9]{2,5}|fatal error|LNK[0-9]{4}|MSB[0-9]{4}' -ErrorAction SilentlyContinue |
+        ForEach-Object { ($_.Line -replace '\s+', ' ').Trim() } |
+        Select-Object -Unique -First 3)
 }
 
 foreach ($project in $Projects) {
@@ -69,7 +92,7 @@ foreach ($project in $Projects) {
             foreach ($extra in $attempts) {
                 $msbuildArgs = $common + $extra
                 Write-Host "msbuild $($msbuildArgs -join ' ')"
-                & $msbuild @msbuildArgs *>&1 | Tee-Object -FilePath $log -Append | Out-Null
+                & $msbuild @msbuildArgs 2>&1 | Tee-Object -FilePath $log -Append
                 if ($LASTEXITCODE -eq 0) { $state = 'built'; break }
                 Write-Host "msbuild exited $LASTEXITCODE, retrying with another toolset"
             }
@@ -79,12 +102,12 @@ foreach ($project in $Projects) {
             Push-Location $dir
             try {
                 & corepack enable *>&1 | Out-Null
-                & pnpm install --frozen-lockfile *>&1 | Tee-Object -FilePath $log -Append | Out-Null
-                $state = if ($LASTEXITCODE -eq 0) { 'built (node)' } else { 'failed (node)' }
+                & pnpm install --frozen-lockfile 2>&1 | Tee-Object -FilePath $log -Append
                 if ($LASTEXITCODE -eq 0) {
-                    & pnpm build *>&1 | Tee-Object -FilePath $log -Append | Out-Null
+                    & pnpm build 2>&1 | Tee-Object -FilePath $log -Append
                     $state = if ($LASTEXITCODE -eq 0) { 'built (node)' } else { 'failed (node build)' }
                 }
+                else { $state = 'failed (node install)' }
             }
             finally {
                 Pop-Location
@@ -109,15 +132,24 @@ foreach ($project in $Projects) {
         Write-Host "no fresh binary under $project"
     }
 
+    $errors = Get-BuildErrors -Log $log
+    foreach ($line in $errors) { Write-Host "  $line" }
+
     $seconds = [int]([datetime]::Now - $started).TotalSeconds
     $name = if ($binary) { Split-Path -Leaf $binary.FullName } else { '-' }
-    $summary.Add("| $project | $state | $platform | $name | ${seconds}s |")
+    $detail = if ($errors.Count) { ($errors -join ' / ') -replace '\|', '/' } else { '' }
+    if ($detail.Length -gt 220) { $detail = $detail.Substring(0, 220) }
+    $summary.Add("| $project | $state | $platform | $name | $detail | ${seconds}s |")
+    Write-Host "##[warning] $project: $state ($platform) $(if ($detail) { $detail } else { 'no compiler error reported' })"
     Write-Host "::endgroup::"
 }
 
 if ($env:GITHUB_STEP_SUMMARY) {
     @(
-        "| project | result | platform | binary | time |",
-        "| --- | --- | --- | --- | --- |"
+        "| project | result | platform | binary | first errors | time |",
+        "| --- | --- | --- | --- | --- | --- |"
     ) + $summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY
 }
+
+# A failed build must not fail the job: the release collects whatever was built.
+exit 0
