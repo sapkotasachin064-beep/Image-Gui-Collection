@@ -25,8 +25,5 @@ Build/
 extracted/
 image-gui-collection/
 
-# ImGui-Menus archive collection (about 400 MB)
-images/
-
 # Node
 node_modules/
