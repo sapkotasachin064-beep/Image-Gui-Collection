@@ -1,4 +1,5 @@
-# Builds the Release binary of every project of one matrix chunk.
+# Builds the Release binary of every project of one matrix entry. The workflow passes
+# a single project, so one job reports one project.
 # x64 is the architecture that is built; a solution without an x64 configuration
 # falls back to the Release platform its solution file declares.
 param(
@@ -9,9 +10,13 @@ param(
 )
 
 $ErrorActionPreference = 'Continue'
+# Keep a failing native command from becoming a terminating error, and keep
+# msbuild's exit code from becoming the exit code of this script.
+$PSNativeCommandUseErrorActionPreference = $false
 $msbuild = (Get-Command msbuild -ErrorAction Stop).Source
 $marker = (Get-Date).AddSeconds(-30)
 $summary = New-Object System.Collections.Generic.List[string]
+$result = $null
 
 function Find-PrimarySolution {
     param([string] $Dir)
@@ -140,8 +145,19 @@ foreach ($project in $Projects) {
     $detail = if ($errors.Count) { ($errors -join ' / ') -replace '\|', '/' } else { '' }
     if ($detail.Length -gt 220) { $detail = $detail.Substring(0, 220) }
     $summary.Add("| $project | $state | $platform | $name | $detail | ${seconds}s |")
-    Write-Host "##[warning] $project: $state ($platform) $(if ($detail) { $detail } else { 'no compiler error reported' })"
+    # Only a project without a binary is a warning: the workflow releases that project
+    # only when the binary exists, so a green job with a warning is the expected shape
+    # of a project that does not compile.
+    if (-not $binary) {
+        Write-Host "##[warning] ${project}: $state ($platform) $(if ($detail) { $detail } else { 'no compiler error reported' })"
+    }
     Write-Host "::endgroup::"
+
+    $result = [pscustomobject]@{
+        Project = $project
+        State   = $state
+        Binary  = [bool] $binary
+    }
 }
 
 if ($env:GITHUB_STEP_SUMMARY) {
@@ -149,6 +165,12 @@ if ($env:GITHUB_STEP_SUMMARY) {
         "| project | result | platform | binary | first errors | time |",
         "| --- | --- | --- | --- | --- | --- |"
     ) + $summary | Add-Content -Path $env:GITHUB_STEP_SUMMARY
+}
+
+# The workflow reads these to decide whether this project has something to release.
+if ($env:GITHUB_OUTPUT -and $result) {
+    Add-Content -Path $env:GITHUB_OUTPUT -Value "state=$($result.State)"
+    Add-Content -Path $env:GITHUB_OUTPUT -Value "binary=$($result.Binary.ToString().ToLowerInvariant())"
 }
 
 # A failed build must not fail the job: the release collects whatever was built.

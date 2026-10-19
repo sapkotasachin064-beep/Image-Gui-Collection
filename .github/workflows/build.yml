@@ -20,7 +20,7 @@ jobs:
     name: discover
     runs-on: ubuntu-latest
     outputs:
-      chunks: ${{ steps.scan.outputs.chunks }}
+      projects: ${{ steps.scan.outputs.projects }}
       count: ${{ steps.scan.outputs.count }}
     steps:
       - uses: actions/checkout@v6
@@ -32,33 +32,36 @@ jobs:
           set -euo pipefail
           mapfile -t dirs < <(find src -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort)
           count=${#dirs[@]}
-          per=9
           echo "count=$count" >> "$GITHUB_OUTPUT"
           if [ "$count" -eq 0 ]; then
-            echo 'chunks=[]' >> "$GITHUB_OUTPUT"
+            echo 'projects=[]' >> "$GITHUB_OUTPUT"
             exit 0
           fi
+          # One matrix entry per project: name is the folder, tag is the release tag.
           all=$(printf '%s\n' "${dirs[@]}" | jq -R -s 'split("\n") | map(select(length > 0))')
-          chunks=$(jq -cn --argjson a "$all" --argjson per "$per" '
-            ($a | length) as $len |
-            [ range(0; (($len + $per - 1) / $per | floor)) as $i
-              | { index: $i, projects: $a[($i * $per):(($i + 1) * $per)] } ]')
+          projects=$(jq -cn --argjson a "$all" '
+            $a | map({ name: ., tag: (gsub("[^A-Za-z0-9._-]"; "_")) })')
           {
-            echo "chunks<<CHUNKS_EOF"
-            echo "$chunks"
-            echo "CHUNKS_EOF"
+            echo "projects<<PROJECTS_EOF"
+            echo "$projects"
+            echo "PROJECTS_EOF"
           } >> "$GITHUB_OUTPUT"
-          echo "found $count projects in $(jq -c 'length' <<< "$chunks") parts"
+          echo "found $count projects, one build job each"
 
+  # One job per project. A project that does not compile warns instead of failing the
+  # run, so the other projects still get their release.
   build:
-    name: build part ${{ matrix.chunk.index }}
+    name: build ${{ matrix.entry.name }}
     needs: discover
+    if: ${{ needs.discover.outputs.projects != '' && needs.discover.outputs.projects != '[]' }}
     runs-on: windows-latest
-    timeout-minutes: 180
+    timeout-minutes: 45
+    permissions:
+      contents: write
     strategy:
       fail-fast: false
       matrix:
-        chunk: ${{ fromJSON(needs.discover.outputs.chunks) }}
+        entry: ${{ fromJSON(needs.discover.outputs.projects) }}
     steps:
       - uses: actions/checkout@v6
 
@@ -68,37 +71,28 @@ jobs:
         shell: pwsh
         run: '& ./.github/scripts/install-d3dx9.ps1 -Platform x64'
 
-      - name: Build the projects of this part (Release|x64)
+      - name: Build ${{ matrix.entry.name }} (Release|x64)
+        id: build
         shell: pwsh
         env:
-          PROJECTS: ${{ toJSON(matrix.chunk.projects) }}
-        run: '& ./.github/scripts/build-projects.ps1 -Projects ($env:PROJECTS | ConvertFrom-Json)'
+          PROJECT: ${{ matrix.entry.name }}
+        run: '& ./.github/scripts/build-projects.ps1 -Projects @($env:PROJECT)'
 
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: exes-part-${{ matrix.chunk.index }}
+          name: ${{ matrix.entry.tag }}
           path: |
             artifacts/
             !artifacts/**/build.log
           if-no-files-found: warn
+          retention-days: 14
 
-  release:
-    name: release (binaries)
-    needs: build
-    if: ${{ !cancelled() && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
-    runs-on: windows-latest
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v6
-
-      - uses: actions/download-artifact@v4
-        with:
-          path: dist
-
-      - name: Publish the built binaries to the rolling release
+      - name: Release ${{ matrix.entry.name }} (tag ${{ matrix.entry.tag }})
+        if: ${{ !cancelled() && github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.build.outputs.binary == 'true' }}
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
-        run: '& ./.github/scripts/publish-exes.ps1'
+          RELEASE_TAG: ${{ matrix.entry.tag }}
+          RELEASE_TITLE: ${{ matrix.entry.name }}
+        run: '& ./.github/scripts/publish-exes.ps1 -Tag $env:RELEASE_TAG -Title $env:RELEASE_TITLE'
