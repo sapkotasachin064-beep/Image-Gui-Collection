@@ -1,0 +1,22 @@
+# Visual Studio build output
+[Bb]in/
+[Oo]bj/
+x64/
+x86/
+.vs/
+*.user
+*.suo
+*.aps
+*.idb
+*.ilk
+*.tlog
+# MSBuild output folders
+Debug/
+Release/
+Build/Intermediate/
+
+# CI staged artifacts
+artifacts/
+
+# Node
+node_modules/

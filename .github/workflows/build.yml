@@ -1,0 +1,146 @@
+name: Build all apps
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  native:
+    name: ${{ matrix.app }} (${{ matrix.platform }})
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - app: drillaware-framework
+            solution: apps/drillaware-framework/KingsleydotDev-Drillaware-ImGui-Menu.sln
+            platform: x64
+            binary: KingsleydotDev-Drillaware-ImGui-Menu.exe
+          - app: drillaware-framework
+            solution: apps/drillaware-framework/KingsleydotDev-Drillaware-ImGui-Menu.sln
+            platform: x86
+            binary: KingsleydotDev-Drillaware-ImGui-Menu.exe
+          - app: chudvision-framework
+            solution: apps/chudvision-framework/ImGui-Chudvision-Framework-KingsleydotDev.sln
+            platform: x64
+            binary: ImGui-Chudvision-Framework-KingsleydotDev.exe
+          - app: chudvision-framework
+            solution: apps/chudvision-framework/ImGui-Chudvision-Framework-KingsleydotDev.sln
+            platform: x86
+            binary: ImGui-Chudvision-Framework-KingsleydotDev.exe
+          - app: chudvision-menu
+            solution: apps/chudvision-menu/ImGui-Chudvision-Framework-KingsleydotDev.sln
+            platform: x64
+            binary: ImGui-Chudvision-Framework-KingsleydotDev.exe
+          - app: chudvision-menu
+            solution: apps/chudvision-menu/ImGui-Chudvision-Framework-KingsleydotDev.sln
+            platform: x86
+            binary: ImGui-Chudvision-Framework-KingsleydotDev.exe
+          - app: opengl-base
+            solution: apps/opengl-base/ImGui OpenGL Base.sln
+            platform: x64
+            binary: Corrupted.dll
+          - app: opengl-base
+            solution: apps/opengl-base/ImGui OpenGL Base.sln
+            platform: x86
+            binary: Corrupted.dll
+          - app: memesense-dx11
+            solution: apps/memesense-dx11/MemeSenseFramework.sln
+            platform: x64
+            binary: MemeSenseFramework.exe
+          - app: memesense-dx11
+            solution: apps/memesense-dx11/MemeSenseFramework.sln
+            platform: x86
+            binary: MemeSenseFramework.exe
+          - app: static-dx11
+            solution: apps/static-dx11/StaticFramework.sln
+            platform: x64
+            binary: StaticFramework.exe
+          - app: static-dx11
+            solution: apps/static-dx11/StaticFramework.sln
+            platform: x86
+            binary: StaticFramework.exe
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: microsoft/setup-msbuild@v2
+
+      - name: Build (${{ matrix.platform }} Release)
+        run: msbuild "${{ matrix.solution }}" /nologo /m /v:minimal /p:Configuration=Release /p:Platform=${{ matrix.platform }}
+
+      - name: Locate build output
+        shell: pwsh
+        run: |
+          $bin = Get-ChildItem -Path "apps/${{ matrix.app }}" -Recurse -File -Filter "${{ matrix.binary }}" |
+                 Sort-Object LastWriteTime -Descending | Select-Object -First 1
+          if (-not $bin) { throw "Build output '${{ matrix.binary }}' not found under apps/${{ matrix.app }}" }
+          Write-Output "OUTPUT=$($bin.FullName)"
+          "OUTPUT_PATH=$($bin.FullName)" >> $env:GITHUB_ENV
+
+      - name: Stage artifact
+        shell: pwsh
+        run: |
+          $dest = "artifacts/${{ matrix.app }}-${{ matrix.platform }}"
+          New-Item -ItemType Directory -Force -Path $dest | Out-Null
+          Copy-Item $env:OUTPUT_PATH $dest
+          Add-Content -Path "$dest/build-info.txt" -Value @(
+            "app: ${{ matrix.app }}"
+            "platform: ${{ matrix.platform }}"
+            "configuration: Release"
+            "commit: ${{ github.sha }}"
+          )
+          Get-ChildItem $dest | Select-Object Name, Length
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.app }}-${{ matrix.platform }}-Release
+          path: artifacts/${{ matrix.app }}-${{ matrix.platform }}
+          if-no-files-found: error
+
+  kdenlive-mcp:
+    name: kdenlive-mcp (typescript)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/kdenlive-mcp
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.5.0
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: apps/kdenlive-mcp/pnpm-lock.yaml
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm build
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Test
+        run: pnpm test
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: kdenlive-mcp-dist
+          path: |
+            apps/kdenlive-mcp/apps/*/dist
+            apps/kdenlive-mcp/packages/*/dist
+          if-no-files-found: warn

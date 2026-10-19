@@ -1,0 +1,8 @@
+# large binaries
+*.lib binary
+*.dll binary
+*.exe binary
+*.png binary
+*.ico binary
+*.ttf binary
+*.otf binary
