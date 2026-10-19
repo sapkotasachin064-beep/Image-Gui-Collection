@@ -18,9 +18,15 @@ Build/Intermediate/
 # CI staged artifacts
 artifacts/
 
+# MSBuild solution-level output folders
+Build/
+
 # Local extraction staging and the duplicate working clone
 extracted/
 image-gui-collection/
+
+# ImGui-Menus archive collection (about 400 MB)
+images/
 
 # Node
 node_modules/

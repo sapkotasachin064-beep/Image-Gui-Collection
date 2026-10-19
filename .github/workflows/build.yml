@@ -22,57 +22,93 @@ jobs:
       matrix:
         include:
           - app: drillaware-framework
-            solution: apps/drillaware-framework/KingsleydotDev-Drillaware-ImGui-Menu.sln
+            solution: src/drillaware-framework/KingsleydotDev-Drillaware-ImGui-Menu.sln
             platform: x64
             binary: KingsleydotDev-Drillaware-ImGui-Menu.exe
           - app: drillaware-framework
-            solution: apps/drillaware-framework/KingsleydotDev-Drillaware-ImGui-Menu.sln
+            solution: src/drillaware-framework/KingsleydotDev-Drillaware-ImGui-Menu.sln
             platform: x86
             binary: KingsleydotDev-Drillaware-ImGui-Menu.exe
           - app: chudvision-framework
-            solution: apps/chudvision-framework/ImGui-Chudvision-Framework-KingsleydotDev.sln
+            solution: src/chudvision-framework/ImGui-Chudvision-Framework-KingsleydotDev.sln
             platform: x64
             binary: ImGui-Chudvision-Framework-KingsleydotDev.exe
           - app: chudvision-framework
-            solution: apps/chudvision-framework/ImGui-Chudvision-Framework-KingsleydotDev.sln
+            solution: src/chudvision-framework/ImGui-Chudvision-Framework-KingsleydotDev.sln
             platform: x86
             binary: ImGui-Chudvision-Framework-KingsleydotDev.exe
           - app: chudvision-menu
-            solution: apps/chudvision-menu/ImGui-Chudvision-Framework-KingsleydotDev.sln
+            solution: src/chudvision-menu/ImGui-Chudvision-Framework-KingsleydotDev.sln
             platform: x64
             binary: ImGui-Chudvision-Framework-KingsleydotDev.exe
           - app: chudvision-menu
-            solution: apps/chudvision-menu/ImGui-Chudvision-Framework-KingsleydotDev.sln
+            solution: src/chudvision-menu/ImGui-Chudvision-Framework-KingsleydotDev.sln
             platform: x86
             binary: ImGui-Chudvision-Framework-KingsleydotDev.exe
           - app: opengl-base
-            solution: apps/opengl-base/ImGui OpenGL Base.sln
+            solution: src/opengl-base/ImGui OpenGL Base.sln
             platform: x64
             binary: Corrupted.dll
           - app: opengl-base
-            solution: apps/opengl-base/ImGui OpenGL Base.sln
+            solution: src/opengl-base/ImGui OpenGL Base.sln
             platform: x86
             binary: Corrupted.dll
           - app: memesense-dx11
-            solution: apps/memesense-dx11/MemeSenseFramework.sln
+            solution: src/memesense-dx11/MemeSenseFramework.sln
             platform: x64
             binary: MemeSenseFramework.exe
           - app: memesense-dx11
-            solution: apps/memesense-dx11/MemeSenseFramework.sln
+            solution: src/memesense-dx11/MemeSenseFramework.sln
             platform: x86
             binary: MemeSenseFramework.exe
           - app: static-dx11
-            solution: apps/static-dx11/StaticFramework.sln
+            solution: src/static-dx11/StaticFramework.sln
             platform: x64
             binary: StaticFramework.exe
           - app: static-dx11
-            solution: apps/static-dx11/StaticFramework.sln
+            solution: src/static-dx11/StaticFramework.sln
             platform: x86
             binary: StaticFramework.exe
+          - app: animated-imgui-loader
+            solution: src/animated-imgui-loader/Control-UsetInterface.sln
+            platform: x64
+            binary: Control-UsetInterface.exe
+            dxsdk: true
+          - app: animated-imgui-loader
+            solution: src/animated-imgui-loader/Control-UsetInterface.sln
+            platform: x86
+            binary: Control-UsetInterface.exe
+            dxsdk: true
+          - app: directx9-cheat-base
+            solution: src/directx9-cheat-base/DirectX9 Cheat Base With Menu.sln
+            platform: x86
+            binary: DirectX9 Cheat Base With Menu.dll
+            dxsdk: true
     steps:
       - uses: actions/checkout@v6
 
       - uses: microsoft/setup-msbuild@v2
+
+      - name: Install D3DX9 SDK (Microsoft.DXSDK.D3DX)
+        if: matrix.dxsdk
+        shell: pwsh
+        run: |
+          $tmp = Join-Path $env:RUNNER_TEMP "d3dx"
+          New-Item -ItemType Directory -Force -Path $tmp | Out-Null
+          $zip = Join-Path $tmp "d3dx.zip"
+          Invoke-WebRequest -Uri "https://www.nuget.org/api/v2/package/Microsoft.DXSDK.D3DX/9.29.952.8" -OutFile $zip -UseBasicParsing
+          Expand-Archive -LiteralPath $zip -DestinationPath (Join-Path $tmp "pkg") -Force
+          $pkg = Join-Path $tmp "pkg/build/native"
+          $dx = Join-Path $tmp "sdk"
+          New-Item -ItemType Directory -Force -Path "$dx/Include", "$dx/Lib/x86", "$dx/Lib/x64" | Out-Null
+          Copy-Item "$pkg/include/*" "$dx/Include" -Recurse -Force
+          Copy-Item "$pkg/release/lib/x86/*", "$pkg/debug/lib/x86/*" "$dx/Lib/x86" -Recurse -Force
+          Copy-Item "$pkg/release/lib/x64/*", "$pkg/debug/lib/x64/*" "$dx/Lib/x64" -Recurse -Force
+          $arch = if ("${{ matrix.platform }}" -eq "x86") { "x86" } else { "x64" }
+          Add-Content -Path $env:GITHUB_ENV -Value "DXSDK_DIR=$dx\"
+          Add-Content -Path $env:GITHUB_ENV -Value "INCLUDE=$dx\Include;$env:INCLUDE"
+          Add-Content -Path $env:GITHUB_ENV -Value "LIB=$dx\Lib\$arch;$env:LIB"
+          Write-Output "D3DX9 SDK staged at $dx for $arch"
 
       - name: Build (${{ matrix.platform }} Release)
         run: msbuild "${{ matrix.solution }}" /nologo /m /v:minimal /p:Configuration=Release /p:Platform=${{ matrix.platform }}
@@ -80,9 +116,9 @@ jobs:
       - name: Locate build output
         shell: pwsh
         run: |
-          $bin = Get-ChildItem -Path "apps/${{ matrix.app }}" -Recurse -File -Filter "${{ matrix.binary }}" |
+          $bin = Get-ChildItem -Path "src/${{ matrix.app }}" -Recurse -File -Filter "${{ matrix.binary }}" |
                  Sort-Object LastWriteTime -Descending | Select-Object -First 1
-          if (-not $bin) { throw "Build output '${{ matrix.binary }}' not found under apps/${{ matrix.app }}" }
+          if (-not $bin) { throw "Build output '${{ matrix.binary }}' not found under src/${{ matrix.app }}" }
           Write-Output "OUTPUT=$($bin.FullName)"
           "OUTPUT_PATH=$($bin.FullName)" >> $env:GITHUB_ENV
 
@@ -111,7 +147,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: apps/kdenlive-mcp
+        working-directory: src/kdenlive-mcp
     steps:
       - uses: actions/checkout@v6
 
@@ -123,7 +159,7 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
-          cache-dependency-path: apps/kdenlive-mcp/pnpm-lock.yaml
+          cache-dependency-path: src/kdenlive-mcp/pnpm-lock.yaml
 
       - name: Install
         run: pnpm install --frozen-lockfile
@@ -141,6 +177,6 @@ jobs:
         with:
           name: kdenlive-mcp-dist
           path: |
-            apps/kdenlive-mcp/apps/*/dist
-            apps/kdenlive-mcp/packages/*/dist
+            src/kdenlive-mcp/apps/*/dist
+            src/kdenlive-mcp/packages/*/dist
           if-no-files-found: warn
